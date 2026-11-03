@@ -73,6 +73,8 @@ button { -webkit-tap-highlight-color: transparent; }
 .text-purple-400, .text-purple-300 { color: #725e95 !important; }
 .bg-emerald-600 { background-color: #28755f !important; }
 .bg-red-600 { background-color: #b64c49 !important; }
+.clinical-primary-action { background-color: #176f64 !important; color: #fff !important; }
+.clinical-primary-action:hover { background-color: #105d56 !important; }
 .shadow-2xl, .shadow-xl, .shadow-lg { box-shadow: var(--shadow) !important; }
 .font-mono { font-family: 'IBM Plex Mono', monospace !important; }
 .font-black { font-family: 'Manrope', sans-serif; }
@@ -80,6 +82,8 @@ button { -webkit-tap-highlight-color: transparent; }
 .app-shell { min-height: 100dvh; background: var(--paper); }
 .app-header { background: rgba(250,252,250,.94); border-color: var(--line); backdrop-filter: blur(18px); }
 .app-main { padding-bottom: calc(5.8rem + env(safe-area-inset-bottom)); }
+.case-view-content { padding-bottom: calc(7rem + env(safe-area-inset-bottom)); }
+.simulation-context-header { position: relative; top: auto; }
 .bg-gradient-to-br { background-image: linear-gradient(135deg, #edf5f0, #ffffff 62%, #e4f1eb) !important; }
 .bg-gradient-to-r { background-image: linear-gradient(105deg, #edf5f0, #ffffff 55%, #e8f2ee) !important; }
 .bg-gradient-to-tr { background-image: linear-gradient(35deg, #dcefe7, #bfe0d3) !important; }
@@ -92,18 +96,6 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 .bottom-dock button { min-height: 3.25rem; border: 0; background: transparent; border-radius: 14px; color: #6b807c; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-size:10px; font-weight:700; cursor:pointer; }
 .bottom-dock button[aria-current="page"] { color: var(--teal-deep); background: var(--mint); }
-.case-dock {
-  position: fixed; z-index: 50; left: 0; right: 0; bottom: 0;
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem;
-  padding: .45rem .65rem calc(.45rem + env(safe-area-inset-bottom));
-  background: rgba(255,255,255,.97); border-top: 1px solid var(--line); backdrop-filter: blur(18px);
-}
-.case-dock button {
-  min-height: 3.25rem; border: 0; border-radius: 14px; background: transparent;
-  color: #71827e; display:flex; flex-direction:column; justify-content:center; align-items:center;
-  gap: 3px; font-size: 10px; font-weight: 700; cursor: pointer;
-}
-.case-dock button[aria-current="page"] { color: var(--teal-deep); background: var(--mint); }
 .panel-card { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); }
 .skeleton { position: relative; overflow: hidden; background: #e5ede8; border-radius: 10px; }
 .skeleton::after { content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent); animation: shimmer 1.4s infinite; }
@@ -114,11 +106,10 @@ button { -webkit-tap-highlight-color: transparent; }
 @media (min-width: 768px) {
   .app-main { padding-bottom: 2rem; }
   .bottom-dock { display:none; }
-  .case-dock {
-    left: 50%; right: auto; bottom: 1rem; width: min(520px, calc(100% - 40px));
-    transform: translateX(-50%); border: 1px solid var(--line); border-radius: 18px;
-    box-shadow: 0 14px 36px rgba(30,73,66,.14);
-  }
+  .case-view-content { padding-bottom: 2rem; }
+}
+@media (max-width: 767px) {
+  .simulation-context-header { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }

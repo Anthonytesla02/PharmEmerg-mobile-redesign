@@ -22,15 +22,14 @@ import {
   PhoneCall, 
   Sparkles, 
   ArrowRight, 
+  ArrowLeft,
   Check, 
   X,
   Pill,
   ChevronDown,
   ChevronUp,
-  Layers,
   History,
   Shield,
-  Focus
 } from 'lucide-react';
 
 interface SimulationViewProps {
@@ -53,8 +52,7 @@ export const SimulationView: React.FC<SimulationViewProps> = ({
   const [conditionState, setConditionState] = useState<PatientConditionState>('initial');
   const [supplyCategoryFilter, setSupplyCategoryFilter] = useState<string>('all');
   
-  // Mobile / compact tabs state
-  const [activeMobileTab, setActiveMobileTab] = useState<'patient' | 'supplies' | 'log'>('patient');
+  const [activePhase, setActivePhase] = useState<'assessment' | 'treatment'>('assessment');
 
   // Accordion folds state
   const [isFindingsFoldOpen, setIsFindingsFoldOpen] = useState<boolean>(true);
@@ -254,6 +252,16 @@ export const SimulationView: React.FC<SimulationViewProps> = ({
     return true;
   });
 
+  const openTreatmentPhase = () => {
+    setActivePhase('treatment');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const returnToAssessment = () => {
+    setActivePhase('assessment');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="w-full max-w-full overflow-x-hidden min-h-[calc(100vh-5rem)] flex flex-col bg-slate-950 text-slate-100">
       {/* Simulation Header with Responsive Vitals & Controls */}
@@ -328,9 +336,9 @@ export const SimulationView: React.FC<SimulationViewProps> = ({
       </header>
 
       {/* Main Simulation View Grid */}
-      <main className="flex-1 w-full max-w-7xl mx-auto p-3 pb-24 sm:p-4 sm:pb-24 grid grid-cols-1 lg:grid-cols-12 gap-4 overflow-x-hidden">
-        {/* Left Column: 2D Patient Scene & Details (7 cols on lg) */}
-        <section className={`lg:col-span-7 flex flex-col gap-3 ${activeMobileTab !== 'patient' ? 'hidden lg:flex' : 'flex'}`}>
+      <main className="case-view-content flex-1 w-full max-w-7xl mx-auto p-3 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 overflow-x-hidden">
+        {activePhase === 'assessment' && (
+        <section className="lg:col-span-8 lg:col-start-3 flex flex-col gap-3">
           {/* Interactive 2D Patient Scene Canvas with Isolated Body Part */}
           <div className="w-full flex-1 min-h-[440px]">
             <Patient2DScene
@@ -353,7 +361,9 @@ export const SimulationView: React.FC<SimulationViewProps> = ({
           {/* Clinical Findings & Triage Guidance Collapsible Fold */}
           <div className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-md">
             <button
+              type="button"
               onClick={() => setIsFindingsFoldOpen(!isFindingsFoldOpen)}
+              aria-expanded={isFindingsFoldOpen}
               className="w-full p-3 flex items-center justify-between text-left text-xs font-semibold text-slate-300 hover:bg-slate-800/50 transition cursor-pointer"
             >
               <div className="flex items-center gap-2">
@@ -379,10 +389,47 @@ export const SimulationView: React.FC<SimulationViewProps> = ({
               </div>
             )}
           </div>
-        </section>
 
-        {/* Right Column: Medical Supplies Inventory & Action Feed (5 cols on lg) */}
-        <section className={`lg:col-span-5 flex flex-col gap-3 ${activeMobileTab === 'patient' ? 'hidden lg:flex' : 'flex'}`}>
+          <div className="rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm sm:p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[.16em] text-emerald-700">Next phase · 2 of 2</p>
+                <p className="mt-1 text-xs text-slate-500">Assessment complete? Continue to the treatment plan.</p>
+              </div>
+              <ArrowRight className="h-5 w-5 shrink-0 text-emerald-700" />
+            </div>
+            <button
+              type="button"
+              onClick={openTreatmentPhase}
+              data-testid="button-give-treatment"
+              className="clinical-primary-action flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+            >
+              Give Treatment
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        </section>
+        )}
+
+        {activePhase === 'treatment' && (
+        <section className="lg:col-span-12 flex flex-col gap-3">
+          <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-4">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[.16em] text-emerald-700">Phase 2 of 2 · Treatment</p>
+              <h2 className="mt-1 text-lg font-bold text-slate-900">Give Treatment</h2>
+              <p className="mt-1 text-xs text-slate-500">Choose interventions and monitor the patient’s response.</p>
+            </div>
+            <button
+              type="button"
+              onClick={returnToAssessment}
+              data-testid="button-back-to-examination"
+              className="inline-flex min-h-10 items-center justify-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 sm:self-auto"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to examination
+            </button>
+          </div>
+
           {/* Urgent Escalation Action Bar */}
           <div className="bg-gradient-to-r from-red-950/60 via-slate-900 to-slate-900 border border-red-500/30 rounded-2xl p-3 flex items-center justify-between gap-2 shadow-lg">
             <div className="flex items-center gap-2.5">
@@ -418,177 +465,170 @@ export const SimulationView: React.FC<SimulationViewProps> = ({
             </button>
           </div>
 
-          {/* Supplies & Equipment Inventory */}
-          <div className={`bg-slate-900/90 border border-slate-800 rounded-2xl p-3 flex flex-col ${activeMobileTab === 'log' ? 'hidden lg:flex' : 'flex'}`}>
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                Medical Supplies & Interventions
-              </h2>
-              {selectedSupply && (
-                <button
-                  onClick={() => setSelectedSupply(null)}
-                  className="text-[10px] text-slate-400 hover:text-white"
-                >
-                  Clear Selection
-                </button>
-              )}
-            </div>
-
-            {/* Inventory Category Filter Tabs (Wrapping gracefully) */}
-            <div className="flex flex-wrap items-center gap-1 pb-2 text-[11px]">
-              {[
-                { id: 'all', label: 'All Items' },
-                { id: 'ppe', label: 'PPE' },
-                { id: 'wound_burn', label: 'Wound & Burn' },
-                { id: 'medication', label: 'Medications' },
-                { id: 'procedure', label: 'Procedures' }
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setSupplyCategoryFilter(tab.id)}
-                  className={`px-2.5 py-1 rounded-lg shrink-0 transition font-medium cursor-pointer ${
-                    supplyCategoryFilter === tab.id
-                      ? 'bg-cyan-600 text-white shadow-sm'
-                      : 'bg-slate-800/80 text-slate-400 hover:text-slate-200 hover:bg-slate-700'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Selected supply prompt if ready to apply */}
-            {selectedSupply && (
-              <div className="mb-2 p-2.5 rounded-xl bg-cyan-950/80 border border-cyan-500/40 text-xs flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] text-cyan-300 uppercase block font-semibold">Active Supply:</span>
-                  <span className="font-bold text-white">{selectedSupply.name}</span>
-                </div>
-                <button
-                  onClick={() => handleApplySupply(selectedSupply)}
-                  className="bg-cyan-600 hover:bg-cyan-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow transition cursor-pointer"
-                >
-                  Apply to {selectedRegion.replace('_', ' ')}
-                </button>
-              </div>
-            )}
-
-            {/* Supply Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 overflow-y-auto max-h-[260px] pr-1">
-              {filteredSupplies.map(supply => {
-                const isSelected = selectedSupply?.id === supply.id;
-                const isAlreadyApplied = appliedActions.some(a => a.supplyId === supply.id);
-                const isHazard = supply.isHarmful;
-
-                return (
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
+            {/* Supplies & Equipment Inventory */}
+            <div className="flex flex-col rounded-2xl border border-slate-800 bg-slate-900/90 p-3 lg:col-span-7">
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                  Medical Supplies & Interventions
+                </h3>
+                {selectedSupply && (
                   <button
-                    key={supply.id}
-                    onClick={() => handleSelectSupply(supply)}
-                    data-testid={`button-supply-${supply.id}`}
-                    className={`text-left p-2.5 rounded-xl border transition flex items-start gap-2.5 cursor-pointer ${
-                      isSelected
-                        ? 'bg-cyan-950/90 border-cyan-400 shadow-md shadow-cyan-900/30'
-                        : isAlreadyApplied
-                        ? 'bg-slate-800/40 border-slate-700/60 opacity-80'
-                        : isHazard
-                        ? 'bg-slate-900/80 border-slate-700/80 hover:border-amber-500/40'
-                        : 'bg-slate-900/80 border-slate-800 hover:border-slate-700 hover:bg-slate-800/50'
-                    }`}
+                    type="button"
+                    onClick={() => setSelectedSupply(null)}
+                    className="text-[10px] text-slate-400 hover:text-white"
                   >
-                    <div className={`p-2 rounded-lg shrink-0 mt-0.5 ${
-                      isHazard ? 'bg-amber-950/50 text-amber-400 border border-amber-800/40' :
-                      supply.category === 'medication' ? 'bg-purple-950/50 text-purple-400 border border-purple-800/40' :
-                      'bg-cyan-950/50 text-cyan-400 border border-cyan-800/40'
-                    }`}>
-                      {supply.category === 'medication' ? <Pill className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs font-semibold text-slate-100 truncate">{supply.name}</div>
-                      <div className="text-[10px] text-slate-400 line-clamp-2 leading-tight">{supply.description}</div>
-                      {isAlreadyApplied && (
-                        <span className="inline-block mt-1 text-[9px] font-bold text-emerald-400">✓ Applied</span>
-                      )}
-                    </div>
+                    Clear Selection
                   </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Applied Actions Feed / Procedure Log Fold */}
-          <div className={`bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-md flex flex-col ${activeMobileTab === 'supplies' ? 'hidden lg:flex' : 'flex'}`}>
-            <button
-              onClick={() => setIsActionsFoldOpen(!isActionsFoldOpen)}
-              className="w-full p-3 flex items-center justify-between text-left text-xs font-bold text-slate-300 hover:bg-slate-800/50 transition cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <History className="w-4 h-4 text-cyan-400" />
-                <span className="uppercase tracking-wider">Procedure Actions Log ({appliedActions.length})</span>
-                <span className="text-[10px] font-mono text-slate-400">({elapsedSeconds}s)</span>
-              </div>
-              {isActionsFoldOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-            </button>
-
-            {isActionsFoldOpen && (
-              <div className="p-3 pt-0 border-t border-slate-800/80">
-                {appliedActions.length === 0 ? (
-                  <div className="text-center py-4 text-slate-500 text-xs italic">
-                    No actions performed yet. Select protective gloves or first aid supplies to begin.
-                  </div>
-                ) : (
-                  <div className="overflow-y-auto max-h-[160px] space-y-2 pr-1">
-                    {appliedActions.map((action) => (
-                      <div
-                        key={action.id}
-                        className={`text-xs p-2.5 rounded-xl border flex items-start gap-2 ${
-                          action.isHarmful || action.isContraindicated
-                            ? 'bg-red-950/40 border-red-500/50 text-red-200'
-                            : action.isEssential
-                            ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-200'
-                            : 'bg-slate-950/60 border-slate-800 text-slate-300'
-                        }`}
-                      >
-                        <span className="text-[10px] font-mono text-slate-400 shrink-0 mt-0.5">
-                          {action.timestampSeconds}s
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-slate-100 flex items-center gap-1.5">
-                            {action.isHarmful || action.isContraindicated ? (
-                              <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                            ) : action.isEssential ? (
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            ) : null}
-                            <span className="truncate">{action.supplyName}</span>
-                          </div>
-                          <div className="text-[11px] text-slate-300 mt-0.5 leading-tight">
-                            {action.clinicalFeedback}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
                 )}
               </div>
-            )}
+
+              {/* Inventory Category Filter Tabs (Wrapping gracefully) */}
+              <div className="flex flex-wrap items-center gap-1 pb-2 text-[11px]">
+                {[
+                  { id: 'all', label: 'All Items' },
+                  { id: 'ppe', label: 'PPE' },
+                  { id: 'wound_burn', label: 'Wound & Burn' },
+                  { id: 'medication', label: 'Medications' },
+                  { id: 'procedure', label: 'Procedures' }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setSupplyCategoryFilter(tab.id)}
+                    className={`shrink-0 rounded-lg px-2.5 py-1 text-[11px] font-medium transition ${
+                      supplyCategoryFilter === tab.id
+                        ? 'bg-cyan-600 text-white shadow-sm'
+                        : 'bg-slate-800/80 text-slate-400 hover:bg-slate-700 hover:text-slate-200'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Selected supply prompt if ready to apply */}
+              {selectedSupply && (
+                <div className="mb-2 flex items-center justify-between rounded-xl border border-cyan-500/40 bg-cyan-950/80 p-2.5 text-xs">
+                  <div>
+                    <span className="block text-[10px] font-semibold uppercase text-cyan-300">Active Supply:</span>
+                    <span className="font-bold text-white">{selectedSupply.name}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleApplySupply(selectedSupply)}
+                    className="rounded-lg bg-cyan-600 px-3 py-1.5 text-[11px] font-bold text-white shadow transition hover:bg-cyan-500"
+                  >
+                    Apply to {selectedRegion.replace('_', ' ')}
+                  </button>
+                </div>
+              )}
+
+              {/* Supply Cards Grid */}
+              <div className="grid max-h-[420px] grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-2">
+                {filteredSupplies.map(supply => {
+                  const isSelected = selectedSupply?.id === supply.id;
+                  const isAlreadyApplied = appliedActions.some(a => a.supplyId === supply.id);
+                  const isHazard = supply.isHarmful;
+
+                  return (
+                    <button
+                      key={supply.id}
+                      type="button"
+                      onClick={() => handleSelectSupply(supply)}
+                      data-testid={`button-supply-${supply.id}`}
+                      className={`flex cursor-pointer items-start gap-2.5 rounded-xl border p-2.5 text-left transition ${
+                        isSelected
+                          ? 'border-cyan-400 bg-cyan-950/90 shadow-md shadow-cyan-900/30'
+                          : isAlreadyApplied
+                          ? 'border-slate-700/60 bg-slate-800/40 opacity-80'
+                          : isHazard
+                          ? 'border-slate-700/80 bg-slate-900/80 hover:border-amber-500/40'
+                          : 'border-slate-800 bg-slate-900/80 hover:border-slate-700 hover:bg-slate-800/50'
+                      }`}
+                    >
+                      <div className={`mt-0.5 shrink-0 rounded-lg border p-2 ${
+                        isHazard ? 'border-amber-800/40 bg-amber-950/50 text-amber-400' :
+                        supply.category === 'medication' ? 'border-purple-800/40 bg-purple-950/50 text-purple-400' :
+                        'border-cyan-800/40 bg-cyan-950/50 text-cyan-400'
+                      }`}>
+                        {supply.category === 'medication' ? <Pill className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5" />}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-xs font-semibold text-slate-100">{supply.name}</div>
+                        <div className="line-clamp-2 text-[10px] leading-tight text-slate-400">{supply.description}</div>
+                        {isAlreadyApplied && (
+                          <span className="mt-1 inline-block text-[9px] font-bold text-emerald-400">✓ Applied</span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Applied Actions Feed / Procedure Log Fold */}
+            <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/90 shadow-md lg:col-span-5">
+              <button
+                type="button"
+                onClick={() => setIsActionsFoldOpen(!isActionsFoldOpen)}
+                aria-expanded={isActionsFoldOpen}
+                className="flex w-full items-center justify-between p-3 text-left text-xs font-bold text-slate-300 transition hover:bg-slate-800/50"
+              >
+                <div className="flex items-center gap-2">
+                  <History className="h-4 w-4 text-cyan-400" />
+                  <span className="uppercase tracking-wider">Procedure Actions Log ({appliedActions.length})</span>
+                  <span className="font-mono text-[10px] text-slate-400">({elapsedSeconds}s)</span>
+                </div>
+                {isActionsFoldOpen ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
+              </button>
+
+              {isActionsFoldOpen && (
+                <div className="border-t border-slate-800/80 p-3 pt-0">
+                  {appliedActions.length === 0 ? (
+                    <div className="py-4 text-center text-xs italic text-slate-500">
+                      No actions performed yet. Select protective gloves or first aid supplies to begin.
+                    </div>
+                  ) : (
+                    <div className="max-h-[300px] space-y-2 overflow-y-auto pr-1">
+                      {appliedActions.map((action) => (
+                        <div
+                          key={action.id}
+                          className={`flex items-start gap-2 rounded-xl border p-2.5 text-xs ${
+                            action.isHarmful || action.isContraindicated
+                              ? 'border-red-500/50 bg-red-950/40 text-red-200'
+                              : action.isEssential
+                              ? 'border-emerald-500/40 bg-emerald-950/30 text-emerald-200'
+                              : 'border-slate-800 bg-slate-950/60 text-slate-300'
+                          }`}
+                        >
+                          <span className="mt-0.5 shrink-0 font-mono text-[10px] text-slate-400">
+                            {action.timestampSeconds}s
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5 font-semibold text-slate-100">
+                              {action.isHarmful || action.isContraindicated ? (
+                                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-red-400" />
+                              ) : action.isEssential ? (
+                                <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                              ) : null}
+                              <span className="truncate">{action.supplyName}</span>
+                            </div>
+                            <div className="mt-0.5 text-[11px] leading-tight text-slate-300">
+                              {action.clinicalFeedback}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </section>
+        )}
       </main>
-
-      {/* Always-reachable treatment access for one-handed mobile use. */}
-      <nav className="case-dock" aria-label="Active case navigation">
-        <button type="button" data-testid="case-nav-patient" aria-current={activeMobileTab === 'patient' ? 'page' : undefined}
-          onClick={() => setActiveMobileTab('patient')}>
-          <Focus size={18} /><span>Patient</span>
-        </button>
-        <button type="button" data-testid="case-nav-treatments" aria-current={activeMobileTab === 'supplies' ? 'page' : undefined}
-          onClick={() => setActiveMobileTab('supplies')}>
-          <Layers size={18} /><span>Treatments</span>
-        </button>
-        <button type="button" data-testid="case-nav-action-log" aria-current={activeMobileTab === 'log' ? 'page' : undefined}
-          onClick={() => setActiveMobileTab('log')}>
-          <History size={18} /><span>Action log{appliedActions.length > 0 ? ` · ${appliedActions.length}` : ''}</span>
-        </button>
-      </nav>
 
       {/* Medication Administration Modal */}
       {showMedModal && selectedSupply && (

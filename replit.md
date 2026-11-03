@@ -34,7 +34,7 @@ Mobile-first pharmacy emergency and trauma training simulator, adapted from http
 ## Product
 
 - Learners can practice emergency cases, apply treatments, escalate to EMS, review a scored debrief, study STGs and medication monographs, and track progression.
-- The active case must keep direct access to Patient, Treatments, and Action Log available on mobile without requiring a scroll back to the top.
+- Keep the mobile bottom navigation fixed to Challenge, Learning, and Profile, including while a case is open. Do not add a case-specific navbar. Cases should move from Physical Findings & Examination to treatment through a Give Treatment button.
 - Main mobile navigation should keep Challenge, Learning, and Profile one tap away.
 
 ## User preferences

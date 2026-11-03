@@ -45,6 +45,7 @@ export default function App() {
   const [currentWeekKey, setCurrentWeekKey] = useState(() => getWeekKey(new Date()));
   const [dailyCase, setDailyCase] = useState(() => getDailyChallengeCase(new Date()));
   const [weeklyCase, setWeeklyCase] = useState(() => getWeeklyChallengeCase(new Date()));
+  const isSimulationActive = simState === 'simulating';
 
   useEffect(() => {
     const checkRollover = () => {
@@ -117,7 +118,6 @@ export default function App() {
   };
   const selectTab = (tab: AppTab) => {
     setActiveTab(tab);
-    setSimState('dashboard');
   };
   const navItems = [
     { id: 'challenge' as const, label: 'Challenge', icon: Activity },
@@ -127,8 +127,7 @@ export default function App() {
 
   return (
     <div className="app-shell flex w-full flex-col text-slate-900 selection:bg-emerald-100 selection:text-emerald-950">
-      {simState !== 'simulating' && (
-        <header className="app-header sticky top-0 z-40 w-full border-b">
+        <header className={`app-header sticky top-0 z-40 w-full border-b ${isSimulationActive && activeTab === 'challenge' ? 'simulation-context-header' : ''}`}>
           <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
             <button
               type="button"
@@ -164,34 +163,35 @@ export default function App() {
             </button>
           </div>
         </header>
-      )}
 
-      <main className={`app-main mx-auto w-full max-w-7xl flex-1 px-3 py-4 sm:px-6 sm:py-6 ${simState === 'simulating' ? '!p-0' : ''}`}>
+      <main className={`app-main mx-auto w-full max-w-7xl flex-1 px-3 py-4 sm:px-6 sm:py-6 ${isSimulationActive && activeTab === 'challenge' ? '!p-0' : ''}`}>
         {activeTab === 'challenge' && <>
           {simState === 'dashboard' && <ChallengeDashboard profile={profile} onStartCase={handleStartCase}
             hasUnfinishedSession={hasUnfinishedSession} onResumeSession={handleResumeSession} dashboardCases={dashboardCases}
             onGenerateBatch5={handleGenerateBatch5} isGeneratingBatch={isGeneratingBatch} dailyCase={dailyCase} weeklyCase={weeklyCase} />}
-          {simState === 'simulating' && activeCase && <SimulationView clinicalCase={activeCase} profile={profile}
-            onFinishCase={handleFinishCase} onExit={() => setSimState('dashboard')} />}
           {simState === 'debrief' && activeCase && lastResult && <DebriefView clinicalCase={activeCase} result={lastResult}
             profile={profile} onRetry={() => handleStartCase(activeCase)} onNextCase={handleNextCase}
             onReturnDashboard={() => setSimState('dashboard')} onOpenGuidelines={() => setActiveTab('learning')} />}
         </>}
+        {simState === 'simulating' && activeCase && (
+          <div className={activeTab === 'challenge' ? 'contents' : 'hidden'} aria-hidden={activeTab !== 'challenge'}>
+            <SimulationView clinicalCase={activeCase} profile={profile}
+              onFinishCase={handleFinishCase} onExit={() => setSimState('dashboard')} />
+          </div>
+        )}
         {activeTab === 'learning' && <LearningTab />}
         {activeTab === 'profile' && <ProfileTab profile={profile} onResetProfile={() => setProfile(INITIAL_IDP_PROFILE)} />}
       </main>
 
-      {simState !== 'simulating' && (
-        <nav className="bottom-dock md:hidden" aria-label="App navigation">
-          {navItems.map(({ id, label, icon: Icon }) => (
-            <button key={id} type="button" data-testid={`mobile-nav-${id}`} onClick={() => selectTab(id)}
-              aria-current={activeTab === id ? 'page' : undefined}>
-              <Icon size={19} strokeWidth={activeTab === id ? 2.3 : 1.8} />
-              <span>{label}</span>
-            </button>
-          ))}
-        </nav>
-      )}
+      <nav className="bottom-dock" aria-label="App navigation">
+        {navItems.map(({ id, label, icon: Icon }) => (
+          <button key={id} type="button" data-testid={`mobile-nav-${id}`} onClick={() => selectTab(id)}
+            aria-current={activeTab === id ? 'page' : undefined}>
+            <Icon size={19} strokeWidth={activeTab === id ? 2.3 : 1.8} />
+            <span>{label}</span>
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }
