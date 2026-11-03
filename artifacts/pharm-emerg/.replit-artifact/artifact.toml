@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "PharmEmerg"
+description = "A mobile-first pharmacy emergency and trauma simulator for practicing clinical assessment, treatment decisions, and case debriefs."
+version = "1.0.0"
+id = "artifacts/pharm-emerg"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 26092
+
+[services.development]
+run = "pnpm --filter @workspace/pharm-emerg run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/pharm-emerg", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/pharm-emerg/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26092"
+BASE_PATH = "/"
